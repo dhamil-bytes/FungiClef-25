@@ -16,10 +16,13 @@ from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, B
 
 account_url = "https://imgmushroom.blob.core.windows.net/"
 container_name = "training-images"
+main_folder = "FungiTastic-FewShot"
 delimiter = "/"
 blob_prefix = "fungiclef25" + delimiter
 img_prefix = blob_prefix + "images" + delimiter
-data_prefix = img_prefix + "FungiTastic-FewShot" + delimiter
+metadata_prefix = blob_prefix + "metadata" + delimiter
+csv_prefix = metadata_prefix + main_folder + delimiter
+data_prefix = img_prefix + main_folder + delimiter
 
 TRAIN_PATH = data_prefix + "train" + delimiter
 TEST_PATH = data_prefix + "test" + delimiter
@@ -29,6 +32,10 @@ RES_OPTIONS = {300: "300p" + delimiter,
                500: "500p" + delimiter,
                720: "720p" + delimiter,
                "full": "fullsize" + delimiter}
+
+metadata_types = {"train": csv_prefix + main_folder + "-Train.csv",
+                  "test": csv_prefix + main_folder + "-Test.csv",
+                  "val": csv_prefix + main_folder + "-Val.csv"}
 
 default_credential = DefaultAzureCredential()
 

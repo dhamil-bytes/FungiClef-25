@@ -7,4 +7,12 @@ dependencies:
   - pip:
     - azure-storage-blob 
     - azure-identity
-
+    - notebook
+    - numpy
+    - matplotlib
+    - scipy
+    - scikit-image
+    - ortools
+    - opencv-contrib-python
+    - torch
+    - scikit-learn
