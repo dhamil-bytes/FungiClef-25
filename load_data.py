@@ -46,6 +46,35 @@ def preview_data():
     
     return None
 
+# bar graph to visualize catagory type column distributions
+def visualize_categories(data):
+
+    embedding_targets = ['order','family','genus','specificEpithet','region','district']
+
+    if (data.strip().lower() in metadata_types):
+        df = csv_data(data)
+
+        le = LabelEncoder()
+        cols = df.columns
+        for c in cols:
+            has_na = df[c].isna()
+            if c in embedding_targets or c == 'category_id':
+                if has_na.sum() != 0:
+                    # fill as UNK
+                    df.loc[has_na,c] = 'UNK'
+                df[c] = df[c].astype('category')
+                vis_col = le.fit_transform(df[c])
+                vis_col = pd.Series(vis_col)
+                value_counts = vis_col.value_counts()
+                plt.figure(figsize=(8, 6))
+                value_counts.plot(kind='bar')
+                plt.title(f'Frequency of Categories in {c}')
+                plt.xlabel('Category')
+                plt.ylabel('Count')
+                plt.xticks(rotation=45, ha='right')
+                plt.tight_layout()
+                plt.show()
+
 
 # return bytestream of some desired data (originally ItemPaged Class from a blob lookup)
 def get_bytestream(item):
