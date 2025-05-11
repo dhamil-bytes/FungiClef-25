@@ -12,6 +12,7 @@ from constants import *
 from itertools import islice
 from io import BytesIO
 from PIL import Image, ImageDraw
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -48,6 +49,14 @@ def preview_data():
 
 # bar graph to visualize catagory type column distributions
 def visualize_categories(data):
+    """
+    data: str
+        you want train, 
+                    test, or 
+                    val?
+
+    types must be compatible with metadata_types in constants.py
+    """
 
     embedding_targets = ['order','family','genus','specificEpithet','region','district']
 
@@ -97,12 +106,12 @@ def get_bytestream(item):
 # return pandas dataframe with tabular metadata based on type wanted
 def csv_data(data):
     """
-        data: str
-            you want train, 
-                     test, or 
-                     val?
+    data: str
+        you want train, 
+                    test, or 
+                    val?
 
-        types must be compatible with metadata_types in constants.py
+    types must be compatible with metadata_types in constants.py
     """
     df = pd.DataFrame()
 
@@ -129,13 +138,9 @@ def standardize_data(data: pd.DataFrame):
     data
         a pandas dataframe
     """
-    # transform to datetime
-    if 'eventDate' in data.columns:
-        data['eventDate'] = data['eventDate'].map(lambda x: datetime.fromisoformat(x))
-    
     # drop redundant data
-    if 'year' and 'month' and 'day' in data.columns:
-        data = data.drop(columns=['year', 'month', 'day'],  axis=1)
+    if 'eventDate' in data.columns:
+        data = data.drop(columns=['eventDate'],  axis=1)
     if 'scientificName' in data.columns:
         data = data.drop(columns=['scientificName'], axis=1)
     if 'species' in data.columns:
@@ -143,19 +148,15 @@ def standardize_data(data: pd.DataFrame):
     if 'observationID' in data.columns:
         data = data.drop(columns=['observationID'], axis=1)
 
-    # get list and zip after dropping necessary cols
-    cols =  data.columns
-    dtypes = data.dtypes
-    coltypes = zip(cols, dtypes)
-
     # get int64 and binarize that ho
     norml_targets = ['coorUncert','elevation','landcover']
     embedding_targets = ['order','family','genus','specificEpithet','region','district']
     onehot_targets = ['biogeographicalRegion', 'metaSubstrate', 'substrate', 'iucnRedListCategory', 'class', 'phylum', 'kingdom', 'countryCode', 'habitat','poisonous','hasCoordinate']
-    scaler = StandardScaler()
-    encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
-    le = LabelEncoder()
-    for c,d in coltypes:
+    for c in data.columns:
+        le = LabelEncoder()
+        scaler = StandardScaler()
+        encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+
         # check for unknown vals
         has_na = data[c].isna()
 
@@ -178,11 +179,24 @@ def standardize_data(data: pd.DataFrame):
             encoded_df.index = data.index
             data = pd.concat([data.drop(columns=[c]), encoded_df], axis=1)
         
+        # label encode
         elif c in embedding_targets:
             if has_na.sum() != 0:
                 # fill as UNK
                 data.loc[has_na, c] = 'UNK'
             data[c] = data[c].astype('category')
             data[c] = le.fit_transform(data[c])
+    
+    # apply astype(float) for consistent dataloading
+    for c in data.columns:
+        if c != 'filename':
+            try:
+                data[c] = data[c].astype(float)
+            except Exception as x:
+                print(x)
+                data.to_csv('failed_standardize_data.csv')
+                raise(x)
 
+    # no col for index
+    data = data.reset_index(drop=True)
     return data

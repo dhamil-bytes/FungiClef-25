@@ -28,6 +28,10 @@ TRAIN_PATH = data_prefix + "train" + delimiter
 TEST_PATH = data_prefix + "test" + delimiter
 VAL_PATH = data_prefix + "val" + delimiter
 
+PATH_OPTIONS = {'train': TRAIN_PATH,
+                "test": TEST_PATH,
+                "val": VAL_PATH}
+
 RES_OPTIONS = {300: "300p" + delimiter,
                500: "500p" + delimiter,
                720: "720p" + delimiter,

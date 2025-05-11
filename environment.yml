@@ -15,4 +15,5 @@ dependencies:
     - ortools
     - opencv-contrib-python
     - torch
+    - torchvision
     - scikit-learn
