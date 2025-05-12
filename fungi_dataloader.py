@@ -6,7 +6,7 @@ Multimodal data loader for fungi x csv data
 
 from constants import *
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
+from torchvision.transforms import v2
 from PIL import Image
 import load_data
 import torch
@@ -15,7 +15,7 @@ import random
 
 
 class MultimodalDataset(Dataset):
-    def __init__(self, kind='train', res=300, transform=transforms.Compose([transforms.Resize((224, 224)),transforms.ToTensor()])):
+    def __init__(self, kind='train', res=300, transform=v2.Compose([v2.ToImage(),v2.Resize((224, 224)),v2.ToDtype(torch.float32, scale=True)])):
         """
         initializes batching given a dataframe of metadata and 
         """
