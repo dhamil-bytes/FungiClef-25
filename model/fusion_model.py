@@ -46,12 +46,12 @@ class ProtoNetModel(nn.Module):
 
         unique_labels = torch.unique(support_batch_labels)
         for label in unique_labels:
-            # Select examples belonging to the current label
+            # examples belonging to the current label
             examples_mask = (support_batch_labels == label)
             examples = support_batch_examples[examples_mask]
-            # Calculate the mean feature vector for the current class
+            # mean feature vector for the current class
             prototype = torch.mean(examples, dim=0)
-            # Store the prototype for the current class
+            # store prototype for the current class
             prototypes[label.item()] = prototype
 
         return prototypes
