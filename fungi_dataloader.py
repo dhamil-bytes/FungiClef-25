@@ -33,7 +33,7 @@ class MultimodalDataset(Dataset):
         # initialize desired data augmentation
         self.transform = transform
 
-        # labels and filenames
+        # labels and filenames (for batching)
         self.labels = self.df['category_id'] if kind in ['train','val'] else None
         self.filenames = self.df['filename']
 
@@ -46,8 +46,10 @@ class MultimodalDataset(Dataset):
 
     def __getitem__(self, idx):
         # get csv row
-        tabular = self.df.iloc[idx]
+        # tabular = self.df.iloc[idx]
         filename = self.filenames.iloc[idx]
+        tabular = self.df.iloc[idx].values
+
         
         # get img and apply img transform
         img_path = os.path.join(self.img_path, filename)
@@ -61,9 +63,9 @@ class MultimodalDataset(Dataset):
 
         if self.kind in ['train', 'val']:
             label = self.labels.iloc[idx]
-            return image, torch.tensor(tabular), torch.tensor(label)
+            return image, torch.tensor(tabular,dtype=torch.float32), torch.tensor(label,dtype=torch.int64)
     
-        return image, torch.tensor(tabular)
+        return image, torch.tensor(tabular,dtype=torch.float32)
 
     def visualize_data(self, n=5):
         rndm_n = random.sample(range(len(self)), n)
@@ -89,3 +91,6 @@ class MultimodalDataset(Dataset):
 
         plt.tight_layout()
         plt.show()
+    
+    def download_dataset(self):
+        self.df.to_csv(f'{self.kind}_multimodal_data.csv',index=False)

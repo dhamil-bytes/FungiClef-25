@@ -14,6 +14,10 @@ import os, uuid
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, BlobPrefix
 
+topk = 10
+output_dim = 512
+output_ftr = 256
+
 account_url = "https://imgmushroom.blob.core.windows.net/"
 container_name = "training-images"
 main_folder = "FungiTastic-FewShot"
